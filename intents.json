@@ -1,0 +1,146 @@
+{
+    "intents": [
+      {
+        "tag": "salutation",
+        "patterns": {
+          "fr": ["bonjour", "salut", "bonsoir", "coucou", "Bonne journée", "Bonne soirée","bnjr","cc"],
+          "en": ["Hello", "Hi", "Good evening", "Good morning", "Hey", "Good day", "Good night"]
+        },
+        "responses": {
+          "fr": ["bonjour ! Comment puis-je vous aider aujourd'hui ?", "Salut ! Comment puis-je vous aider ?", "Coucou ! Que puis-je faire pour vous ?", "Hey ! Comment puis-je vous aider ?", "Bonne journée ! Comment puis-je vous aider ?"],
+          "en": ["Hello! How can I assist you today?", "Hi! How can I help you?", "Good evening! What can I do for you?", "Hello! How can I assist you?", "Hey! How can I help you?", "Good day! How can I assist you?", "Good night! What can I do for you?"]
+        },
+        "context_set": ""
+      },
+      {
+        "tag": "au revoir",
+        "patterns": {
+          "fr": ["Au revoir", "Adieu", "À bientôt", "À plus tard", "À la prochaine"],
+          "en": ["Goodbye", "Farewell", "See you soon", "See you later", "Have a nice day", "Good night", "Until next time"]
+        },
+        "responses": {
+          "fr": ["Au revoir ! Passez une bonne journée.", "Adieu ! À bientôt.", "À bientôt ! Prenez soin de vous.", "À plus tard !", "Bonne journée !", "Bonne soirée !", "À la prochaine !"],
+          "en": ["Goodbye! Have a nice day.", "Farewell! See you soon.", "See you soon! Take care.", "See you later!", "Bye! Until next time.", "Have a nice day!", "Good night!", "Until next time!"]
+        },
+        "context_set": ""
+      },
+      {
+        "tag": "creation facture",
+        "patterns": {
+          "fr": ["creer facture", "ajouter facture", "inserer facture", "introduire facture"],
+          "en": ["add an invoice", "create an invoice", "insert an invoice", "introduce an invoice"]
+        },
+        "responses": {
+          "fr": ["\nPour créer une nouvelle facture :\nÉtape 1 : Connectez-vous au logiciel de gestion commerciale.\nÉtape 2 : Cliquez sur l'onglet 'Factures'.\nÉtape 3 : Sélectionnez 'Nouvelle facture'.\nÉtape 4 : Remplissez les informations requises (client, produits/services, prix).\nÉtape 5 : Enregistrez et envoyez la facture au client.\n"],
+          "en": ["\nTo create a new invoice:\nStep 1: Log in to the commercial management software.\nStep 2: Click on the 'Invoices' tab.\nStep 3: Select 'New Invoice'.\nStep 4: Fill in the required information (customer, products/services, price).\nStep 5: Save and send the invoice to the customer.\n"]
+        },
+        "context_set": ""
+      },
+      {
+        "tag": "creation client",
+        "patterns": {
+          "fr": ["creer client", "ajouter client", "insérer client", "introduire client"],
+          "en": ["add  client", "create client", "insert client", "introduce an client"]
+        },
+        "responses": {
+          "fr": ["\nPour ajouter un nouveau client :\nÉtape 1 : Connectez-vous au logiciel de gestion commerciale.\nÉtape 2 : Cliquez sur l'onglet 'Clients'.\nÉtape 3 : Sélectionnez 'Nouveau client'.\nÉtape 4 : Remplissez les informations requises (nom, adresse, contact).\nÉtape 5 : Enregistrez le client.\n"],
+          "en": ["\nTo add a new client:\nStep 1: Log in to the commercial management software.\nStep 2: Click on the 'Clients' tab.\nStep 3: Select 'New Client'.\nStep 4: Fill in the required information (name, address, contact).\nStep 5: Save the client.\n"]
+        },
+        "context_set": ""
+      },
+      {
+        "tag": "modifier facture",
+        "patterns": {
+          "fr": [
+              "modifier facture",
+              "changer facture",
+              "mettre à jour facture",
+              "éditer facture",
+              "ajuster facture"
+          ],
+          "en": [
+              "update invoice",
+              "modify invoice",
+              "change invoice",
+              "edit invoice",
+              "adjust invoice"
+          ]
+      },
+      "responses": {
+        "fr": [
+            "\nPour modifier une facture :\nÉtape 1 : Connectez-vous au logiciel de gestion commerciale.\nÉtape 2 : Cliquez sur l'onglet 'Factures'.\nÉtape 3 : Recherchez et sélectionnez la facture que vous souhaitez modifier dans la liste des factures.\nÉtape 4 : Cliquez sur le bouton 'Modifier' ou 'Éditer' à côté de la facture sélectionnée.\nÉtape 5 : Modifiez les informations requises (date, montant, produits/services, etc.) selon vos besoins.\nÉtape 6 : Enregistrez les modifications.\n"
+        ],
+        "en": [
+            "\nTo modify an invoice:\nStep 1: Log in to the commercial management software.\nStep 2: Click on the 'Invoices' tab.\nStep 3: Search and select the invoice you want to modify from the invoice list.\nStep 4: Click the 'Modify' or 'Edit' button next to the selected invoice.\nStep 5: Update the required information (date, amount, products/services, etc.) as needed.\nStep 6: Save the changes.\n"
+        ]
+        },
+        "context_set": ""
+      },
+      {
+        "tag": "modifier client",
+        "patterns": {
+          "fr": ["modifier client","modifier client"],
+          "en": ["update client"]
+        },
+        "responses": {
+          "fr": [
+              "\nPour modifier un client :\nÉtape 1 : Connectez-vous au logiciel de gestion commerciale.\nÉtape 2 : Cliquez sur l'onglet 'Clients'.\nÉtape 3 : Recherchez et sélectionnez le client que vous souhaitez modifier dans la liste des clients.\nÉtape 4 : Cliquez sur le bouton 'Modifier' ou 'Éditer' à côté du client sélectionné.\nÉtape 5 : Modifiez les informations requises (nom, adresse, contact, etc.) selon vos besoins.\nÉtape 6 : Enregistrez les modifications.\n"
+          ],
+          "en": [
+              "\nto modify a client:\nStep 1: Log in to the commercial management software.\nStep 2: Click on the 'Clients' tab.\nStep 3: Search and select the client you want to modify from the client list.\nStep 4: Click the 'Modify' or 'Edit' button next to the selected client.\nStep 5: Update the required information (name, address, contact, etc.) as needed.\nStep 6: Save the changes.\n"
+          ]
+      },
+       "context_set": ""
+  },
+       
+  
+      {
+        "tag": "supprimer client",
+        "patterns": {
+          "fr": ["supprimer client","supprimer client"],
+          "en": ["delete client"]
+        },
+        "responses": {
+          "fr": [
+              "\nPour supprimer un client :\nÉtape 1 : Connectez-vous au logiciel de gestion commerciale.\nÉtape 2 : Cliquez sur l'onglet 'Clients'.\nÉtape 3 : Recherchez et sélectionnez le client que vous souhaitez supprimer dans la liste des clients.\nÉtape 4 : Cliquez sur le bouton 'Supprimer' ou 'Effacer' à côté du client sélectionné.\nÉtape 5 : Confirmez la suppression lorsqu'une fenêtre contextuelle de confirmation apparaît.\nÉtape 6 : Le client sera supprimé de la liste des clients.\n"
+          ],
+          "en": [
+              "\nTo delete a client:\nStep 1: Log in to the commercial management software.\nStep 2: Click on the 'Clients' tab.\nStep 3: Search and select the client you want to delete from the client list.\nStep 4: Click the 'Delete' or 'Erase' button next to the selected client.\nStep 5: Confirm the deletion when a confirmation popup appears.\nStep 6: The client will be removed from the client list.\n"
+          ]
+        },
+        "context_set": ""
+      }, {
+        "tag": "supprimer facture",
+        "patterns": {
+          "fr": ["supprimer facture"],
+          "en": ["delete invoice"]
+        },
+        "responses": {
+                  "fr": [
+                      "\nPour supprimer une facture :\nÉtape 1 : Connectez-vous au logiciel de gestion commerciale.\nÉtape 2 : Cliquez sur l'onglet 'Factures'.\nÉtape 3 : Recherchez et sélectionnez la facture que vous souhaitez supprimer dans la liste des factures.\nÉtape 4 : Cliquez sur le bouton 'Supprimer' ou 'Effacer' à côté de la facture sélectionnée.\nÉtape 5 : Confirmez la suppression lorsqu'une fenêtre contextuelle de confirmation apparaît.\nÉtape 6 : La facture sera supprimée de la liste des factures.\n"
+                  ],
+                  "en": [
+                      "\nTo delete an invoice:\nStep 1: Log in to the commercial management software.\nStep 2: Click on the 'Invoices' tab.\nStep 3: Search and select the invoice you want to delete from the invoice list.\nStep 4: Click the 'Delete' or 'Erase' button next to the selected invoice.\nStep 5: Confirm the deletion when a confirmation popup appears.\nStep 6: The invoice will be removed from the invoice list.\n"
+                  ]
+        },
+        "context_set": ""
+      },{
+        "tag": "merci",
+        "patterns": {
+          "fr": ["merci", "je vous remercie", "thanks", "thank you"]
+        },
+        "responses": {
+          "fr": [
+            "De rien !",
+            "Je vous en prie.",
+            "Avec plaisir !"
+          ],
+          "en": [
+            "You're welcome!",
+            "No problem!",
+            "My pleasure!"
+          ]
+        }
+      }
+    ]
+  }
