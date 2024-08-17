@@ -37,7 +37,7 @@ model.eval()  # Mise du modèle en mode évaluation (désactivation du dropout, 
 
 # Initialisation de l'application Flask
 app = Flask(__name__)
-CORS(app)  # Activation de CORS pour l'application Flask
+CORS(app)  
 
 # Fonction pour charger les données QA depuis un fichier JSON
 def load_qa(file_path):
@@ -74,26 +74,26 @@ def preprocess_text(text, language):
     
     return ' '.join(tokens)
 # Extract keywords from intents.json for custom spell checking
-def extract_keywords_from_intents(qa_data, lang):
-    keywords = []
-    for intent in qa_data['intents']:
-        if 'patterns' in intent and lang in intent['patterns']:
-            keywords.extend(intent['patterns'][lang])
-    return set(keywords)
 
 
 
 
-def custom_spell_checker(input_text, keywords, spell_checker):
-    words = input_text.split()  # Séparer le texte d'entrée en mots
+def custom_spell_checker(input_text, keywords, correction_func):
+    words = input_text.split()
     corrected_words = []
+    
     for word in words:
         if word in keywords:
-            corrected_words.append(word)  # Garder les mots qui sont déjà des mots-clés
+            corrected_words.append(word)
         else:
-            corrected_words.append(spell_checker(word))  # Corriger les autres mots
-    return ' '.join(corrected_words)  # Rejoindre les mots corrigés en une seule chaîne
+            corrected_word = correction_func(word)
+            # Si la correction est None, conserver le mot original
+            corrected_words.append(corrected_word if corrected_word is not None else word)
+    
+    return ' '.join(corrected_words)
+
 def get_closest_question(user_input, questions, language):
+    threshold=0.5
     best_similarity = 0.0
     closest_question = None
 
@@ -108,7 +108,7 @@ def get_closest_question(user_input, questions, language):
         else:
             continue  
         
-        if similarity > best_similarity:
+        if similarity > threshold and similarity > best_similarity:
             best_similarity = similarity
             closest_question = question
     
@@ -163,40 +163,59 @@ def chatbot():
         closest_question = get_closest_question(segment, questions, langue)
         print('gjhnknlk,p',closest_question)
         # Tokenisation de chaque segment
-        closest_question = tokenize(closest_question)
-        print("Tokenizing:", closest_question)
-        print("Preprocessed closest_question:", closest_question)
-        X = bag_of_words(closest_question, all_words)  # Conversion des tokens en vecteurs de caractéristiques
-        X = X.reshape(1, X.shape[0])  # Reshape pour correspondre à l'entrée du modèle
-        print("Feature vector:", X)
+        if closest_question is not None:
+            closest_question = tokenize(closest_question)
+       
+            print("Preprocessed closest_question:", closest_question)
+            print("Tokenizing:", closest_question)
+            print("Preprocessed closest_question:", closest_question)
+            X = bag_of_words(closest_question, all_words)  # Conversion des tokens en vecteurs de caractéristiques
+            X = X.reshape(1, X.shape[0])  # Reshape pour correspondre à l'entrée du modèle
+            print("Feature vector:", X)
 
-        # Définition du périphérique (CPU ou GPU)
-        device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-        X = torch.from_numpy(X).to(device)  # Conversion des vecteurs de caractéristiques en tenseurs PyTorch
+            # Définition du périphérique (CPU ou GPU)
+            device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+            X = torch.from_numpy(X).to(device)  # Conversion des vecteurs de caractéristiques en tenseurs PyTorch
 
-        # Prédiction pour chaque segment
-        output = model(X)  # Passage des données à travers le modèle
-        _, predicted = torch.max(output, dim=1)  # Obtention du tag prédit
+            # Prédiction pour chaque segment
+            output = model(X)  # Passage des données à travers le modèle
+            _, predicted = torch.max(output, dim=1)  # Obtention du tag prédit
 
-        probs = torch.softmax(output, dim=1)  # Calcul des probabilités
-        prob = probs[0][predicted.item()]  # Probabilité associée à la classe prédite
+            probs = torch.softmax(output, dim=1)  # Calcul des probabilités
+            prob = probs[0][predicted.item()]  # Probabilité associée à la classe prédite
 
-        print(f"Predicted tag: {tags[predicted.item()]}, Probability: {prob.item()}")
+            print(f"Predicted tag: {tags[predicted.item()]}, Probability: {prob.item()}")
 
-        if prob.item() > 0.75:  # Seuil de confiance pour la réponse
-            tag = tags[predicted.item()]
-            for intent in intents['intents']:
-                if tag == intent["tag"]:
-                    responses.append(random.choice(intent['responses'][langue]))  # Ajouter une réponse aléatoire
+            if prob.item() > 0.75:  # Seuil de confiance pour la réponse
+                tag = tags[predicted.item()]
+                for intent in intents['intents']:
+                    if tag == intent["tag"]:
+                        responses.append(random.choice(intent['responses'][langue]))  # Ajouter une réponse aléatoire
+        else:
+            if langue == 'fr':
+                responses.append("Je ne suis pas sûr de comprendre.")
+            else:
+                responses.append("Sorry, I don't understand this question")
+
 
     if responses:
-        answer = ' '.join(responses)  # Combiner toutes les réponses
-        print("Response:", answer)
-        response = {"message": answer}
-        return jsonify(response), 200, {'Content-Type': 'application/json; charset=utf-8'}
+                answer = ' '.join(responses)  # Combiner toutes les réponses
+                print("Response:", answer)
+                response = {"message": answer}
+                return jsonify(response), 200, {'Content-Type': 'application/json; charset=utf-8'}
     else:
 
-        return jsonify({"message": "Je ne comprends pas..."})  # Réponse par défaut si aucune réponse n'est trouvée
+                if langue == 'fr':
+                    response = {"message": "Je ne comprend pas cee message."}
+                    return jsonify(response), 200, {'Content-Type': 'application/json; charset=utf-8'}
+                else:
+                    response = {"message": "Sorry, I don't understand this question"}
+                    return jsonify(response), 200, {'Content-Type': 'application/json; charset=utf-8'} 
+   
+                 
+
+   
+
 
 # Exécution de l'application Flask
 if __name__ == '__main__':
