@@ -1,22 +1,25 @@
 import numpy as np
 import nltk
-import spacy
 from spacy.lang.fr.stop_words import STOP_WORDS as fr_stop_words
 from spacy.lang.en.stop_words import STOP_WORDS as en_stop_words
 from spacy.tokens import Doc
-# nltk.download('punkt')
+
+
+
 from nltk.stem.porter import PorterStemmer
 stemmer = PorterStemmer()
-nlp_fr = spacy.load('fr_core_news_md')
-nlp_en = spacy.load('en_core_web_md')
 def tokenize(sentence):
-    
+    if isinstance(sentence, bytes):
+        sentence = sentence.decode('utf-8')
     return nltk.word_tokenize(sentence)
 
 
+
 def stem(word):
-   
+    if isinstance(word, bytes):
+        word = word.decode('utf-8')
     return stemmer.stem(word.lower())
+
 
 
 def bag_of_words(tokenized_sentence, words):

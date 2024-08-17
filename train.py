@@ -10,7 +10,7 @@ from nltk_utils import bag_of_words, tokenize, stem  # Importation de fonctions 
 from model import NeuralNet  # Importation du modèle de réseau de neurones défini dans un fichier externe
 
 # Chargement des données d'intention depuis un fichier JSON
-with open('intents.json', 'r') as f:
+with open('intents.json', 'r',encoding='utf-8') as f:
     intents = json.load(f)  # Lecture et chargement du fichier JSON contenant les intentions
 
 all_words = []   # Liste pour stocker tous les mots extraits des modèles de phrases

@@ -1,16 +1,23 @@
-import random  # Importation du module random pour la sélection aléatoire
-import json  # Importation du module json pour la manipulation des fichiers JSON
-import torch  # Importation de PyTorch pour les opérations de calcul numérique et d'apprentissage profond
-from flask import Flask, request, jsonify  # Importation des composants Flask pour créer une API web
-from flask_cors import CORS  # Importation de CORS pour permettre les requêtes cross-origin
-from model import NeuralNet  # Importation de la classe NeuralNet définie dans le fichier model.py
-from nltk_utils import bag_of_words, tokenize  # Importation des fonctions utilitaires de nltk_utils
-from spellchecker import SpellChecker  # Importation de la bibliothèque pour la correction orthographique
-from autocorrect import Speller  # Importation de la bibliothèque autocorrect pour la correction automatique
-import re  # Importation du module re pour les expressions régulières
+import random  
+import json  
+import torch 
+import spacy
+from flask import Flask, request, jsonify  
+from flask_cors import CORS  
+from model import NeuralNet  
+from nltk_utils import bag_of_words, tokenize  
+from spellchecker import SpellChecker  
+from autocorrect import Speller  
+import re 
+from spacy.lang.fr.stop_words import STOP_WORDS as fr_stop_words
+from spacy.lang.en.stop_words import STOP_WORDS as en_stop_words
+from spacy.tokens import Doc 
+
+nlp_fr = spacy.load('fr_core_news_md')
+nlp_en = spacy.load('en_core_web_md')
 
 # Charger les intents et les données du modèle depuis un fichier JSON
-with open('intents.json', 'r') as json_data:
+with open('intents.json', 'r',encoding='utf-8') as json_data:
     intents = json.load(json_data)  # Chargement des données d'intents depuis le fichier JSON
 
 # Charger les données du modèle depuis un fichier PyTorch
@@ -48,14 +55,35 @@ def extract_keywords_from_intents(qa_data, lang):
             keywords.extend(intent['patterns'][lang])
     return set(keywords)  # Retourner un ensemble de mots-clés uniques
 
-# Initialisation des correcteurs orthographiques et des mots-clés
-spell_fr = SpellChecker(language='fr')  # Correcteur orthographique pour le français
-spell_en = Speller(lang='en')  # Correcteur orthographique pour l'anglais
-# Extraction des mots-clés pour chaque langue
+spell_fr = SpellChecker(language='fr')  
+spell_en = Speller(lang='en')  
+
 keywords_fr = extract_keywords_from_intents(qa_data, 'fr')
 keywords_en = extract_keywords_from_intents(qa_data, 'en')
-print("English keywords:", keywords_en)
-# Fonction pour la correction orthographique personnalisée
+
+def preprocess_text(text, language):
+    if language == 'fr':
+        doc = nlp_fr(text.lower())
+        tokens = [token.text for token in doc if not token.is_punct and not token.is_space and token.text not in fr_stop_words]
+    elif language == 'en':
+        doc = nlp_en(text.lower())
+        tokens = [token.text for token in doc if not token.is_punct and not token.is_space and token.text not in en_stop_words]
+    else:
+        doc = nlp_fr(text.lower())  # Default to French if language is not supported
+        tokens = [token.text for token in doc if not token.is_punct and not token.is_space and token.text not in fr_stop_words]
+    
+    return ' '.join(tokens)
+# Extract keywords from intents.json for custom spell checking
+def extract_keywords_from_intents(qa_data, lang):
+    keywords = []
+    for intent in qa_data['intents']:
+        if 'patterns' in intent and lang in intent['patterns']:
+            keywords.extend(intent['patterns'][lang])
+    return set(keywords)
+
+
+
+
 def custom_spell_checker(input_text, keywords, spell_checker):
     words = input_text.split()  # Séparer le texte d'entrée en mots
     corrected_words = []
@@ -65,7 +93,26 @@ def custom_spell_checker(input_text, keywords, spell_checker):
         else:
             corrected_words.append(spell_checker(word))  # Corriger les autres mots
     return ' '.join(corrected_words)  # Rejoindre les mots corrigés en une seule chaîne
+def get_closest_question(user_input, questions, language):
+    best_similarity = 0.0
+    closest_question = None
 
+    user_input_processed = preprocess_text(user_input, language)
+
+    for question in questions:
+        question_processed = preprocess_text(question, language)
+        if language == 'fr':
+            similarity = nlp_fr(user_input_processed).similarity(nlp_fr(question_processed))
+        elif language == 'en':
+            similarity = nlp_en(user_input_processed).similarity(nlp_en(question_processed))
+        else:
+            continue  
+        
+        if similarity > best_similarity:
+            best_similarity = similarity
+            closest_question = question
+    
+    return closest_question
 
 
 
@@ -102,11 +149,24 @@ def chatbot():
     responses = []
 
     for segment in segments:
+        questions = []
+        question_answer_map = {}
+
+        # Extract questions and corresponding answers from QA data
+        for intent in qa_data["intents"]:
+            if langue in intent["patterns"]:
+                for pattern in intent["patterns"][langue]:
+                    questions.append(pattern)
+                    question_answer_map.setdefault(pattern, set()).update(intent["responses"][langue])
+
+        # Find the closest question for this part
+        closest_question = get_closest_question(segment, questions, langue)
+        print('gjhnknlk,p',closest_question)
         # Tokenisation de chaque segment
-        segment = tokenize(segment)
-        print("Tokenizing:", segment)
-        print("Preprocessed segment:", segment)
-        X = bag_of_words(segment, all_words)  # Conversion des tokens en vecteurs de caractéristiques
+        closest_question = tokenize(closest_question)
+        print("Tokenizing:", closest_question)
+        print("Preprocessed closest_question:", closest_question)
+        X = bag_of_words(closest_question, all_words)  # Conversion des tokens en vecteurs de caractéristiques
         X = X.reshape(1, X.shape[0])  # Reshape pour correspondre à l'entrée du modèle
         print("Feature vector:", X)
 
@@ -132,9 +192,11 @@ def chatbot():
     if responses:
         answer = ' '.join(responses)  # Combiner toutes les réponses
         print("Response:", answer)
-        return jsonify({"response": answer})  # Retourner la réponse au format JSON
+        response = {"message": answer}
+        return jsonify(response), 200, {'Content-Type': 'application/json; charset=utf-8'}
     else:
-        return jsonify({"response": "Je ne comprends pas..."})  # Réponse par défaut si aucune réponse n'est trouvée
+
+        return jsonify({"message": "Je ne comprends pas..."})  # Réponse par défaut si aucune réponse n'est trouvée
 
 # Exécution de l'application Flask
 if __name__ == '__main__':
